@@ -1,0 +1,32 @@
+name: 构建 格格驾到.exe
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 打包为单文件exe
+        run: pyinstaller --noconfirm --onefile --windowed --name "格格驾到" --icon assets/icon.ico --collect-all customtkinter --add-data "assets;assets" app.py
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: 格格驾到-windows-exe
+          path: dist/格格驾到.exe
